@@ -2,6 +2,7 @@
 """Clipboard Text Transformer: read clipboard, transform it, write it back."""
 
 import argparse
+import re
 import pyperclip
 
 
@@ -9,18 +10,26 @@ def transform_uppercase(text: str) -> str:
     return text.upper()
 
 
-# NEW: turn each line into a bullet point
 def transform_bullets(text: str) -> str:
     lines = text.splitlines()
-
-    # For each line: skip it if blank, strip whitespace, add bullet
-    bulleted = [
-        f"• {line.strip()}"
-        for line in lines
-        if line.strip()
-    ]
-
+    bulleted = [f"• {line.strip()}" for line in lines if line.strip()]
     return "\n".join(bulleted)
+
+
+# NEW: clean up messy whitespace and formatting
+def transform_strip(text: str) -> str:
+    # Collapse multiple spaces or tabs into one single space
+    text = re.sub(r"[ \t]+", " ", text)
+
+    # Collapse 3+ blank lines into just two (preserves paragraph breaks)
+    text = re.sub(r"\n{3,}", "\n\n", text)
+
+    # Strip leading/trailing whitespace from every individual line
+    lines = [line.strip() for line in text.splitlines()]
+    text = "\n".join(lines)
+
+    # Strip whitespace from the very start and end of the whole block
+    return text.strip()
 
 
 def apply_transform(transform: str, text: str) -> str:
@@ -28,8 +37,8 @@ def apply_transform(transform: str, text: str) -> str:
         return transform_uppercase(text)
     if transform == "bullets":
         return transform_bullets(text)
-
-    print(f"'{transform}' not implemented yet.")
+    if transform == "strip":
+        return transform_strip(text)
     return text
 
 
