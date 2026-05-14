@@ -1,5 +1,18 @@
 #!/usr/bin/env python3
-"""Clipboard Text Transformer: read clipboard, transform it, write it back."""
+"""
+Clipboard Text Transformer: read clipboard, transform it, write it back.
+
+Usage:
+- python transform.py <transform> [--preview]
+
+Transforms:
+- uppercase   Convert all text to uppercase
+- bullets     Turn each line into a bullet point
+- strip       Remove extra whitespace and blank lines
+
+Flags:
+--preview   Print the result without overwriting the clipboard
+"""
 
 import argparse
 import re
@@ -39,8 +52,15 @@ def main():
     parser.add_argument(
         "transform",
         choices=["uppercase", "bullets", "strip"],
-        help="Transformation to apply: uppercase | bullets | strip"
+        help="Transformation to apply"
     )
+    # NEW: same pattern as --dry-run in the file organizer
+    parser.add_argument(
+        "--preview",
+        action="store_true",
+        help="Print the result without writing back to clipboard"
+    )
+
     args = parser.parse_args()
 
     text = pyperclip.paste()
@@ -50,10 +70,13 @@ def main():
 
     result = apply_transform(args.transform, text)
 
-    # Write the transformed text back to the clipboard
-    # After this line the user can paste the result anywhere immediately
-    pyperclip.copy(result)
-    print(f"Done. ({len(text)} chars --> {len(result)} chars)")
+    # Branch on --preview before touching the clipboard
+    if args.preview:
+        print("=== PREVIEW (clipboard unchanged) ===\n")
+        print(result)
+    else:
+        pyperclip.copy(result)
+        print(f"Done. ({len(text)} chars --> {len(result)} chars)")
 
 
 if __name__ == "__main__":
