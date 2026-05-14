@@ -16,19 +16,11 @@ def transform_bullets(text: str) -> str:
     return "\n".join(bulleted)
 
 
-# NEW: clean up messy whitespace and formatting
 def transform_strip(text: str) -> str:
-    # Collapse multiple spaces or tabs into one single space
     text = re.sub(r"[ \t]+", " ", text)
-
-    # Collapse 3+ blank lines into just two (preserves paragraph breaks)
     text = re.sub(r"\n{3,}", "\n\n", text)
-
-    # Strip leading/trailing whitespace from every individual line
     lines = [line.strip() for line in text.splitlines()]
     text = "\n".join(lines)
-
-    # Strip whitespace from the very start and end of the whole block
     return text.strip()
 
 
@@ -57,7 +49,11 @@ def main():
         return
 
     result = apply_transform(args.transform, text)
-    print(result)
+
+    # Write the transformed text back to the clipboard
+    # After this line the user can paste the result anywhere immediately
+    pyperclip.copy(result)
+    print(f"Done. ({len(text)} chars --> {len(result)} chars)")
 
 
 if __name__ == "__main__":
