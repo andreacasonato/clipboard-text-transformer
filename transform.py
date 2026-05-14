@@ -5,18 +5,29 @@ import argparse
 import pyperclip
 
 
-# Each transformation is its own function.
-# str.upper() returns a NEW string, it never modifies the original.
-# Strings in Python are immutable, so every string method always returns a new one.
 def transform_uppercase(text: str) -> str:
     return text.upper()
 
 
-# This function maps the CLI argument to the right transformation function.
-# We'll add bullets and strip here in the next steps.
+# NEW: turn each line into a bullet point
+def transform_bullets(text: str) -> str:
+    lines = text.splitlines()
+
+    # For each line: skip it if blank, strip whitespace, add bullet
+    bulleted = [
+        f"• {line.strip()}"
+        for line in lines
+        if line.strip()
+    ]
+
+    return "\n".join(bulleted)
+
+
 def apply_transform(transform: str, text: str) -> str:
     if transform == "uppercase":
         return transform_uppercase(text)
+    if transform == "bullets":
+        return transform_bullets(text)
 
     print(f"'{transform}' not implemented yet.")
     return text
